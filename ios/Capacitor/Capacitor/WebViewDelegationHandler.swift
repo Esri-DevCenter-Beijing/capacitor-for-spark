@@ -94,27 +94,35 @@ internal class WebViewDelegationHandler: NSObject, WKNavigationDelegate, WKUIDel
             }
         }
 
+        if navURL.absoluteString.starts(with: "http://localhost") {
+            decisionHandler(.cancel)
+            let myUrl = navURL.absoluteString.replacingOccurrences(of: "http://localhost", with: "capacitor://sparkapp.arcgis.com")
+            webView.load(URLRequest(url: URL(string:myUrl)!))
+            return
+        }
+
         // next, check if this is covered by the allowedNavigation configuration
         if let host = navURL.host, bridge.config.shouldAllowNavigation(to: host) {
             decisionHandler(.allow)
             return
         }
 
+        // prevent opening page outside
         // otherwise, is this a new window or a main frame navigation but to an outside source
-        let toplevelNavigation = (navigationAction.targetFrame == nil || navigationAction.targetFrame?.isMainFrame == true)
+        // let toplevelNavigation = (navigationAction.targetFrame == nil || navigationAction.targetFrame?.isMainFrame == true)
 
-        // Check if the url being navigated to is configured as an application url (whether local or remote)
-        let isApplicationNavigation = navURL.absoluteString.starts(with: bridge.config.serverURL.absoluteString) ||
-            navURL.absoluteString.starts(with: bridge.config.localURL.absoluteString)
+        // // Check if the url being navigated to is configured as an application url (whether local or remote)
+        // let isApplicationNavigation = navURL.absoluteString.starts(with: bridge.config.serverURL.absoluteString) ||
+        //     navURL.absoluteString.starts(with: bridge.config.localURL.absoluteString)
 
-        if !isApplicationNavigation, toplevelNavigation {
-            // disallow and let the system handle it
-            if UIApplication.shared.applicationState == .active {
-                UIApplication.shared.open(navURL, options: [:], completionHandler: nil)
-            }
-            decisionHandler(.cancel)
-            return
-        }
+        // if !isApplicationNavigation, toplevelNavigation {
+        //     // disallow and let the system handle it
+        //     if UIApplication.shared.applicationState == .active {
+        //         UIApplication.shared.open(navURL, options: [:], completionHandler: nil)
+        //     }
+        //     decisionHandler(.cancel)
+        //     return
+        // }
 
         // fallthrough to allowing it
         decisionHandler(.allow)

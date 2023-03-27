@@ -93,6 +93,7 @@ internal class CapacitorBridge: NSObject, CAPBridgeProtocol {
     var webViewAssetHandler: WebViewAssetHandler
     var webViewDelegationHandler: WebViewDelegationHandler
     weak var bridgeDelegate: CAPBridgeDelegate?
+    weak var sparkProtocol: SparkProtocol?
     @objc public var viewController: UIViewController? {
         return bridgeDelegate?.bridgedViewController
     }
@@ -451,6 +452,16 @@ internal class CapacitorBridge: NSObject, CAPBridgeProtocol {
         guard let pluginType = knownPlugins[plugin.getId()] else {
             return
         }
+
+        if let sparkProtocol = sparkProtocol{
+            let (hasPermission, permissionName) = sparkProtocol.hasPermissionFor(pluginId: call.pluginId, method: call.method)
+            if !hasPermission {
+                CAPLog.print("⚡️  Permission denied. Please declare \(permissionName) in app manifest's permissions section")
+                return
+            }
+        }
+        
+//        print("plugin name: \(call.pluginId), method:\(call.method)")
 
         let selector: Selector
         if call.method == "addListener" || call.method == "removeListener" {

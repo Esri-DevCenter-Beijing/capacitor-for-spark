@@ -13,7 +13,12 @@ import Cordova
     public var isStatusBarVisible = true
     public var statusBarStyle: UIStatusBarStyle = .default
     public var statusBarAnimation: UIStatusBarAnimation = .slide
+    public var allowedHostnames: [String] = []
     @objc public var supportedOrientations: [Int] = []
+
+    public func setSparkProtocol(sparkProtocol: SparkProtocol?){
+        capacitorBridge?.sparkProtocol = sparkProtocol
+    }
 
     public lazy final var isNewBinary: Bool = {
         if let curVersionCode = Bundle.main.infoDictionary?["CFBundleVersion"] as? String,
@@ -30,6 +35,7 @@ import Cordova
     override public final func loadView() {
         // load the configuration and set the logging flag
         let configDescriptor = instanceDescriptor()
+        configDescriptor.allowedNavigationHostnames.append(contentsOf: allowedHostnames)
         let configuration = InstanceConfiguration(with: configDescriptor, isDebug: CapacitorBridge.isDevEnvironment)
         CAPLog.enableLogging = configuration.loggingEnabled
         logWarnings(for: configDescriptor)
@@ -46,7 +52,8 @@ import Cordova
         assetHandler.setAssetPath(configuration.appLocation.path)
         let delegationHandler = WebViewDelegationHandler()
         prepareWebView(with: configuration, assetHandler: assetHandler, delegationHandler: delegationHandler)
-        view = webView
+        view = UIView(frame: UIScreen.main.bounds)
+        view.addSubview(webView!)
         // create the bridge
         capacitorBridge = CapacitorBridge(with: configuration,
                                           delegate: self,
@@ -150,6 +157,13 @@ import Cordova
     open func capacitorDidLoad() {
     }
 
+    public func willLoadWebView(){
+        guard let bridge = capacitorBridge else {
+            return
+        }
+        bridge.webViewDelegationHandler.willLoadWebview(webView)
+    }
+
     public final func loadWebView() {
         guard let bridge = capacitorBridge else {
             return
@@ -162,6 +176,7 @@ import Cordova
         let url = bridge.config.appStartServerURL
         CAPLog.print("⚡️  Loading app at \(url.absoluteString)...")
         bridge.webViewDelegationHandler.willLoadWebview(webView)
+        willLoadWebView()
         _ = webView?.load(URLRequest(url: url))
     }
 
@@ -283,7 +298,8 @@ extension CAPBridgeViewController {
         webConfig.setURLSchemeHandler(assetHandler, forURLScheme: configuration.localURL.scheme ?? InstanceDescriptorDefaults.scheme)
         webConfig.userContentController = delegationHandler.contentController
         // create the web view and set its properties
-        let aWebView = webView(with: .zero, configuration: webConfig)
+        let frame = UIScreen.main.bounds
+        let aWebView = webView(with: frame, configuration: webConfig)
         aWebView.scrollView.bounces = false
         aWebView.scrollView.contentInsetAdjustmentBehavior = configuration.contentInsetAdjustmentBehavior
         aWebView.allowsLinkPreview = configuration.allowLinkPreviews
