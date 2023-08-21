@@ -14,6 +14,7 @@ import Cordova
     public var statusBarStyle: UIStatusBarStyle = .default
     public var statusBarAnimation: UIStatusBarAnimation = .slide
     public var allowedHostnames: [String] = []
+    public var params: String?
     @objc public var supportedOrientations: [Int] = []
 
     public func setSparkProtocol(sparkProtocol: SparkProtocol?){
@@ -173,7 +174,15 @@ import Cordova
             fatalLoadError()
         }
 
-        let url = bridge.config.appStartServerURL
+        var url = bridge.config.appStartServerURL
+        if let params = params, !params.isEmpty{
+            if let query = url.query, !query.isEmpty{
+                url = URL(string: url.absoluteString + "&\(params)")!
+            }else {
+                url = URL(string: url.absoluteString + "?\(params)")!
+            }
+        }
+        
         CAPLog.print("⚡️  Loading app at \(url.absoluteString)...")
         bridge.webViewDelegationHandler.willLoadWebview(webView)
         willLoadWebView()
