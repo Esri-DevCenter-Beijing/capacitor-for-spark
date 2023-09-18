@@ -290,9 +290,9 @@ extension CAPBridgeViewController {
     @objc public func setServerBasePath(path: String) {
         guard let capBridge = capacitorBridge else { return }
         capBridge.setServerBasePath(path)
-        DispatchQueue.main.async { [weak self] in
-            _ = self?.webView?.load(URLRequest(url: capBridge.config.serverURL))
-        }
+//        DispatchQueue.main.async { [weak self] in
+//            _ = self?.webView?.load(URLRequest(url: capBridge.config.serverURL))
+//        }
     }
 }
 
