@@ -13,17 +13,11 @@ export async function buildAndroid(
 ): Promise<void> {
   const releaseType = buildOptions.androidreleasetype ?? 'AAB';
   const releaseTypeIsAAB = releaseType === 'AAB';
-  const arg = releaseTypeIsAAB ? ':app:bundleRelease' : 'assembleRelease';
+  const flavor = buildOptions.flavor ?? '';
+  const arg = releaseTypeIsAAB
+    ? `:app:bundle${flavor}Release`
+    : `assemble${flavor}Release`;
   const gradleArgs = [arg];
-
-  if (
-    !buildOptions.keystorepath ||
-    !buildOptions.keystorealias ||
-    !buildOptions.keystorealiaspass ||
-    !buildOptions.keystorepass
-  ) {
-    throw 'Missing options. Please supply all options for android signing. (Keystore Path, Keystore Password, Keystore Key Alias, Keystore Key Password)';
-  }
 
   try {
     await runTask('Running Gradle build', async () =>
@@ -46,7 +40,7 @@ export async function buildAndroid(
     'build',
     'outputs',
     releaseTypeIsAAB ? 'bundle' : 'apk',
-    'release',
+    buildOptions.flavor ? `${flavor}Release` : 'release',
   );
 
   const unsignedReleaseName = `app${
@@ -59,6 +53,73 @@ export async function buildAndroid(
     }.${releaseType.toLowerCase()}`,
     `-release-signed.${releaseType.toLowerCase()}`,
   );
+
+  if (buildOptions.signingtype == 'jarsigner') {
+    await signWithJarSigner(
+      config,
+      buildOptions,
+      releasePath,
+      signedReleaseName,
+      unsignedReleaseName,
+    );
+  } else {
+    await signWithApkSigner(
+      config,
+      buildOptions,
+      releasePath,
+      signedReleaseName,
+      unsignedReleaseName,
+    );
+  }
+
+  logSuccess(`Successfully generated ${signedReleaseName} at: ${releasePath}`);
+}
+
+async function signWithApkSigner(
+  config: Config,
+  buildOptions: BuildCommandOptions,
+  releasePath: string,
+  signedReleaseName: string,
+  unsignedReleaseName: string,
+) {
+  if (!buildOptions.keystorepath || !buildOptions.keystorepass) {
+    throw 'Missing options. Please supply all options for android signing. (Keystore Path, Keystore Password)';
+  }
+
+  const signingArgs = [
+    'sign',
+    '--ks',
+    buildOptions.keystorepath,
+    '--ks-pass',
+    `pass:${buildOptions.keystorepass}`,
+    '--in',
+    `${join(releasePath, unsignedReleaseName)}`,
+    '--out',
+    `${join(releasePath, signedReleaseName)}`,
+  ];
+
+  await runTask('Signing Release', async () => {
+    await runCommand('apksigner', signingArgs, {
+      cwd: config.android.platformDirAbs,
+    });
+  });
+}
+
+async function signWithJarSigner(
+  config: Config,
+  buildOptions: BuildCommandOptions,
+  releasePath: string,
+  signedReleaseName: string,
+  unsignedReleaseName: string,
+) {
+  if (
+    !buildOptions.keystorepath ||
+    !buildOptions.keystorealias ||
+    !buildOptions.keystorealiaspass ||
+    !buildOptions.keystorepass
+  ) {
+    throw 'Missing options. Please supply all options for android signing. (Keystore Path, Keystore Password, Keystore Key Alias, Keystore Key Password)';
+  }
 
   const signingArgs = [
     '-sigalg',
@@ -82,6 +143,4 @@ export async function buildAndroid(
       cwd: config.android.platformDirAbs,
     });
   });
-
-  logSuccess(`Successfully generated ${signedReleaseName} at: ${releasePath}`);
 }

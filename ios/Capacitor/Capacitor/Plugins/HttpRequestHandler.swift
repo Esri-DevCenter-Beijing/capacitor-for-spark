@@ -31,7 +31,7 @@ public enum ResponseType: String {
 /// - Returns: The parsed value or an error
 func tryParseJson(_ data: Data) -> Any {
     do {
-        return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+        return try JSONSerialization.jsonObject(with: data, options: [.mutableContainers, .fragmentsAllowed])
     } catch {
         return error.localizedDescription
     }
@@ -151,6 +151,7 @@ open class HttpRequestHandler {
         let responseType = call.getString("responseType") ?? "text"
         let connectTimeout = call.getDouble("connectTimeout")
         let readTimeout = call.getDouble("readTimeout")
+        let dataType = call.getString("dataType") ?? "any"
 
         if urlString == urlString.removingPercentEncoding {
             guard let encodedUrlString = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)  else { throw URLError(.badURL) }
@@ -172,7 +173,7 @@ open class HttpRequestHandler {
 
         if let data = call.options["data"] as? JSValue {
             do {
-                try request.setRequestBody(data)
+                try request.setRequestBody(data, dataType)
             } catch {
                 // Explicitly reject if the http request body was not set successfully,
                 // so as to not send a known malformed request, and to provide the developer with additional context.

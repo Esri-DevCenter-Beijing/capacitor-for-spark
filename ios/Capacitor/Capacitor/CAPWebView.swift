@@ -28,6 +28,7 @@ open class CAPWebView: UIView {
     private lazy var assetHandler: WebViewAssetHandler = {
         let handler = WebViewAssetHandler(router: router)
         handler.setAssetPath(configuration.appLocation.path)
+        handler.setServerUrl(configuration.serverURL)
         return handler
     }()
 
@@ -134,6 +135,11 @@ extension CAPWebView {
         webViewConfiguration.suppressesIncrementalRendering = false
         webViewConfiguration.allowsAirPlayForMediaPlayback = true
         webViewConfiguration.mediaTypesRequiringUserActionForPlayback = []
+
+        if #available(iOS 14.0, *) {
+            webViewConfiguration.limitsNavigationsToAppBoundDomains = instanceConfiguration.limitsNavigationsToAppBoundDomains
+        }
+
         if let appendUserAgent = instanceConfiguration.appendedUserAgentString {
             if let appName = webViewConfiguration.applicationNameForUserAgent {
                 webViewConfiguration.applicationNameForUserAgent = "\(appName)  \(appendUserAgent)"
@@ -141,6 +147,17 @@ extension CAPWebView {
                 webViewConfiguration.applicationNameForUserAgent = appendUserAgent
             }
         }
+
+        if let preferredContentMode = instanceConfiguration.preferredContentMode {
+            var mode = WKWebpagePreferences.ContentMode.recommended
+            if preferredContentMode == "mobile" {
+                mode = WKWebpagePreferences.ContentMode.mobile
+            } else if preferredContentMode == "desktop" {
+                mode = WKWebpagePreferences.ContentMode.desktop
+            }
+            webViewConfiguration.defaultWebpagePreferences.preferredContentMode = mode
+        }
+
         return webViewConfiguration
     }
 
@@ -157,7 +174,6 @@ extension CAPWebView {
         webView.scrollView.bounces = false
         webView.scrollView.contentInsetAdjustmentBehavior = configuration.contentInsetAdjustmentBehavior
         webView.allowsLinkPreview = configuration.allowLinkPreviews
-        webView.configuration.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
         webView.scrollView.isScrollEnabled = configuration.scrollingEnabled
 
         if let overrideUserAgent = configuration.overridenUserAgentString {

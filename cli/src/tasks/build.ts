@@ -6,11 +6,13 @@ import { buildiOS } from '../ios/build';
 
 export interface BuildCommandOptions {
   scheme?: string;
+  flavor?: string;
   keystorepath?: string;
   keystorepass?: string;
   keystorealias?: string;
   keystorealiaspass?: string;
   androidreleasetype?: 'AAB' | 'APK';
+  signingtype?: 'apksigner' | 'jarsigner';
 }
 
 export async function buildCommand(
@@ -31,6 +33,7 @@ export async function buildCommand(
 
   const buildCommandOptions: BuildCommandOptions = {
     scheme: buildOptions.scheme || config.ios.scheme,
+    flavor: buildOptions.flavor || config.android.flavor,
     keystorepath:
       buildOptions.keystorepath || config.android.buildOptions.keystorePath,
     keystorepass:
@@ -44,6 +47,10 @@ export async function buildCommand(
       buildOptions.androidreleasetype ||
       config.android.buildOptions.releaseType ||
       'AAB',
+    signingtype:
+      buildOptions.signingtype ||
+      config.android.buildOptions.signingType ||
+      'jarsigner',
   };
 
   try {

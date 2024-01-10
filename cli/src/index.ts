@@ -81,7 +81,7 @@ export function runProgram(config: Config): void {
     .description(`${c.input('copy')} + ${c.input('update')}`)
     .option(
       '--deployment',
-      "Optional: if provided, Podfile.lock won't be deleted and pod install will use --deployment option",
+      'Optional: if provided, pod install will use --deployment option',
     )
     .option(
       '--inline',
@@ -107,7 +107,7 @@ export function runProgram(config: Config): void {
     )
     .option(
       '--deployment',
-      "Optional: if provided, Podfile.lock won't be deleted and pod install will use --deployment option",
+      'Optional: if provided, pod install will use --deployment option',
     )
     .action(
       wrapAction(
@@ -141,6 +141,7 @@ export function runProgram(config: Config): void {
     .command('build <platform>')
     .description('builds the release version of the selected platform')
     .option('--scheme <schemeToBuild>', 'iOS Scheme to build')
+    .option('--flavor <flavorToBuild>', 'Android Flavor to build')
     .option('--keystorepath <keystorePath>', 'Path to the keystore')
     .option('--keystorepass <keystorePass>', 'Password to the keystore')
     .option('--keystorealias <keystoreAlias>', 'Key Alias in the keystore')
@@ -153,6 +154,12 @@ export function runProgram(config: Config): void {
         '--androidreleasetype <androidreleasetype>',
         'Android release type; APK or AAB',
       ).choices(['AAB', 'APK']),
+    )
+    .addOption(
+      new Option(
+        '--signing-type <signingtype>',
+        'Program used to sign apps (default: jarsigner)',
+      ).choices(['apksigner', 'jarsigner']),
     )
     .action(
       wrapAction(
@@ -167,6 +174,7 @@ export function runProgram(config: Config): void {
               keystorealias,
               keystorealiaspass,
               androidreleasetype,
+              signingType,
             },
           ) => {
             const { buildCommand } = await import('./tasks/build');
@@ -177,29 +185,52 @@ export function runProgram(config: Config): void {
               keystorealias,
               keystorealiaspass,
               androidreleasetype,
+              signingtype: signingType,
             });
           },
         ),
       ),
     );
-
   program
     .command(`run [platform]`)
     .description(
       `runs ${c.input('sync')}, then builds and deploys the native app`,
     )
     .option('--scheme <schemeName>', 'set the scheme of the iOS project')
-    .option('--flavor <flavorName>', 'set the flavor of the Android project')
+    .option(
+      '--flavor <flavorName>',
+      'set the flavor of the Android project (flavor dimensions not yet supported)',
+    )
     .option('--list', 'list targets, then quit')
     // TODO: remove once --json is a hidden option (https://github.com/tj/commander.js/issues/1106)
     .allowUnknownOption(true)
     .option('--target <id>', 'use a specific target')
     .option('--no-sync', `do not run ${c.input('sync')}`)
+    .option(
+      '--forwardPorts <port:port>',
+      'Automatically run "adb reverse" for better live-reloading support',
+    )
+    .option('-l, --live-reload', 'Enable Live Reload')
+    .option('--host <host>', 'Host used for live reload')
+    .option('--port <port>', 'Port used for live reload')
     .action(
       wrapAction(
         telemetryAction(
           config,
-          async (platform, { scheme, flavor, list, target, sync }) => {
+          async (
+            platform,
+            {
+              scheme,
+              flavor,
+              list,
+              target,
+              sync,
+              forwardPorts,
+              liveReload,
+              host,
+              port,
+            },
+          ) => {
             const { runCommand } = await import('./tasks/run');
             await runCommand(config, platform, {
               scheme,
@@ -207,6 +238,10 @@ export function runProgram(config: Config): void {
               list,
               target,
               sync,
+              forwardPorts,
+              liveReload,
+              host,
+              port,
             });
           },
         ),
@@ -293,13 +328,18 @@ export function runProgram(config: Config): void {
 
   program
     .command('migrate')
+    .option('--noprompt', 'do not prompt for confirmation')
+    .option(
+      '--packagemanager <packageManager>',
+      'The package manager to use for dependency installs (npm, pnpm, yarn)',
+    )
     .description(
       'Migrate your current Capacitor app to the latest major version of Capacitor.',
     )
     .action(
-      wrapAction(async () => {
+      wrapAction(async ({ noprompt, packagemanager }) => {
         const { migrateCommand } = await import('./tasks/migrate');
-        await migrateCommand(config);
+        await migrateCommand(config, noprompt, packagemanager);
       }),
     );
 

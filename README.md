@@ -82,6 +82,21 @@ Made possible by the Capacitor community. 💖
 <!-- CONTRIBUTORS:START -->
 
 <p align="center">
+  <a href="https://github.com/liuwin7"><img src="https://github.com/liuwin7.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/5uper"><img src="https://github.com/5uper.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/petermakeswebsites"><img src="https://github.com/petermakeswebsites.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/kjr-lh"><img src="https://github.com/kjr-lh.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/yooouuri"><img src="https://github.com/yooouuri.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/davidnussio"><img src="https://github.com/davidnussio.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/ltm"><img src="https://github.com/ltm.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/stewones"><img src="https://github.com/stewones.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/wilgert"><img src="https://github.com/wilgert.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/saschpe"><img src="https://github.com/saschpe.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/zakuru"><img src="https://github.com/zakuru.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/JanMisker"><img src="https://github.com/JanMisker.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/piotr-zurek"><img src="https://github.com/piotr-zurek.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/crhayes"><img src="https://github.com/crhayes.png?size=100" width="50" height="50" /></a>
+  <a href="https://github.com/markemer"><img src="https://github.com/markemer.png?size=100" width="50" height="50" /></a>
   <a href="https://github.com/junxiong96"><img src="https://github.com/junxiong96.png?size=100" width="50" height="50" /></a>
   <a href="https://github.com/dtarnawsky"><img src="https://github.com/dtarnawsky.png?size=100" width="50" height="50" /></a>
   <a href="https://github.com/dallastjames"><img src="https://github.com/dallastjames.png?size=100" width="50" height="50" /></a>

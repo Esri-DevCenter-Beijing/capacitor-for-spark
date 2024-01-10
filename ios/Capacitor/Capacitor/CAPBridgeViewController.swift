@@ -12,7 +12,7 @@ import Cordova
 
     public var isStatusBarVisible = true
     public var statusBarStyle: UIStatusBarStyle = .default
-    public var statusBarAnimation: UIStatusBarAnimation = .slide
+    public var statusBarAnimation: UIStatusBarAnimation = .fade
     public var allowedHostnames: [String] = []
     public var params: String?
     @objc public var supportedOrientations: [Int] = []
@@ -51,6 +51,7 @@ import Cordova
         // get the web view
         let assetHandler = WebViewAssetHandler(router: router())
         assetHandler.setAssetPath(configuration.appLocation.path)
+        assetHandler.setServerUrl(configuration.serverURL)
         let delegationHandler = WebViewDelegationHandler()
         prepareWebView(with: configuration, assetHandler: assetHandler, delegationHandler: delegationHandler)
         view = UIView(frame: UIScreen.main.bounds)
@@ -312,7 +313,6 @@ extension CAPBridgeViewController {
         aWebView.scrollView.bounces = false
         aWebView.scrollView.contentInsetAdjustmentBehavior = configuration.contentInsetAdjustmentBehavior
         aWebView.allowsLinkPreview = configuration.allowLinkPreviews
-        aWebView.configuration.preferences.setValue(true, forKey: "allowFileAccessFromFileURLs")
         aWebView.scrollView.isScrollEnabled = configuration.scrollingEnabled
         if let overrideUserAgent = configuration.overridenUserAgentString {
             aWebView.customUserAgent = overrideUserAgent

@@ -1,21 +1,16 @@
 {
-  "packages": [
-    "./android/",
-    "./ios/",
-    "./cli/",
-    "./core/"
-  ],
   "command": {
     "bootstrap": {
       "hoist": true
     },
     "version": {
-      "allowBranch": "4.x",
+      "allowBranch": "5.x",
       "conventionalCommits": true,
       "createRelease": "github",
       "message": "Release %s",
       "tagVersionPrefix": ""
     }
   },
-  "version": "4.7.1"
+  "version": "5.6.0",
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json"
 }
