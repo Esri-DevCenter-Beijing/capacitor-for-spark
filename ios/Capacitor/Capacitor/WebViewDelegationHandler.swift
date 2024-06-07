@@ -94,12 +94,12 @@ internal class WebViewDelegationHandler: NSObject, WKNavigationDelegate, WKUIDel
             }
         }
 
-        if navURL.absoluteString.starts(with: "http://localhost") {
-            decisionHandler(.cancel)
-            let myUrl = navURL.absoluteString.replacingOccurrences(of: "http://localhost", with: "capacitor://sparkapp.arcgis.com")
-            webView.load(URLRequest(url: URL(string:myUrl)!))
-            return
-        }
+//        if navURL.absoluteString.starts(with: "http://localhost") {
+//            decisionHandler(.cancel)
+//            let myUrl = navURL.absoluteString.replacingOccurrences(of: "http://localhost", with: "capacitor://sparkapp.arcgis.com")
+//            webView.load(URLRequest(url: URL(string:myUrl)!))
+//            return
+//        }
 
         // next, check if this is covered by the allowedNavigation configuration
         if let host = navURL.host, bridge.config.shouldAllowNavigation(to: host) {
